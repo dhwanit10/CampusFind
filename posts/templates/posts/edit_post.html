@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}
+Edit Post
+{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+
+<div class="col-lg-7">
+
+<div class="custom-card p-4">
+
+<h2 class="text-peach mb-4">
+
+Edit Post
+
+</h2>
+
+<form
+    method="POST"
+    enctype="multipart/form-data">
+
+{% csrf_token %}
+
+<input
+    type="hidden"
+    name="next"
+    value="{{ request.META.HTTP_REFERER|default:'' }}">
+
+<!-- Current Image -->
+
+<div class="text-center">
+
+    <img
+        src="{{ post.image.url }}"
+        id="previewImage"
+        class="edit-post-image">
+
+</div>
+
+<!-- Hidden File Input -->
+
+<div class="d-none">
+
+    {{ form.image }}
+
+</div>
+
+<div class="text-center my-4">
+
+<button
+    type="button"
+    class="btn btn-peach"
+    id="changeImage">
+
+    Change Image
+
+</button>
+
+</div>
+
+<div class="mb-4">
+
+<label class="form-label">
+
+Caption
+
+</label>
+
+{{ form.caption }}
+
+</div>
+
+<div class="d-flex justify-content-end">
+
+<a
+    href="javascript:history.back()"
+    class="btn btn-outline-light me-2">
+
+    Cancel
+
+</a>
+
+<button
+    class="btn btn-peach">
+
+    Save Changes
+
+</button>
+
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+const imageInput = document.getElementById(
+    "id_image"
+);
+
+const preview = document.getElementById(
+    "previewImage"
+);
+
+document.getElementById(
+    "changeImage"
+).onclick = function(){
+
+    imageInput.click();
+
+};
+
+imageInput.onchange = function(e){
+
+    const file = e.target.files[0];
+
+    if(file){
+
+        preview.src = URL.createObjectURL(file);
+
+    }
+
+};
+
+</script>
+
+{% endblock %}
