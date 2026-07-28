@@ -1,0 +1,84 @@
+<div class="modal fade"
+     id="deletePost{{ post.id }}"
+     tabindex="-1"
+     aria-labelledby="deletePostLabel{{ post.id }}"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content bg-dark text-white">
+
+            <div class="modal-header border-secondary">
+
+                <h5 class="modal-title"
+                    id="deletePostLabel{{ post.id }}">
+
+                    Delete Post
+
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close btn-close-white"
+                    data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+            <div class="modal-body text-center">
+
+                <i class="bi bi-trash display-4 text-danger"></i>
+
+                <h4 class="mt-3">
+
+                    Delete this post?
+
+                </h4>
+
+                <p class="text-secondary">
+
+                    This action cannot be undone.
+
+                </p>
+
+            </div>
+
+            <div class="modal-footer border-secondary">
+
+                <button
+                    type="button"
+                    class="btn btn-outline-light"
+                    data-bs-dismiss="modal">
+
+                    Cancel
+
+                </button>
+
+                <form
+                    method="POST"
+                    action="{% url 'delete-post' post.id %}">
+
+                    {% csrf_token %}
+
+                    <input
+                        type="hidden"
+                        name="next"
+                        value="{{ request.path }}">
+
+                    <button
+                        type="submit"
+                        class="btn btn-danger">
+
+                        Delete
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

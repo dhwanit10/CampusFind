@@ -1,0 +1,181 @@
+<div class="modal fade"
+     id="postModal{{ post.id }}"
+     tabindex="-1">
+
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+
+        <div class="modal-content bg-dark text-white">
+
+            <div class="modal-header border-secondary">
+
+                <div class="d-flex align-items-center">
+
+                    <img
+                        src="{{ post.user.profile.profile_image.url }}"
+                        class="mini-profile">
+
+                    <strong class="ms-2">
+
+                        {{ post.user.username }}
+
+                    </strong>
+
+                </div>
+
+                <button
+                    class="btn-close btn-close-white"
+                    data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <div class="row">
+
+                    <!-- Image -->
+
+                    <div class="col-lg-7">
+
+                        <img
+                            src="{{ post.image.url }}"
+                            class="modal-post-image">
+
+                    </div>
+
+                    <!-- Right Side -->
+
+                    <div class="col-lg-5 d-flex flex-column">
+                        <form
+                            method="POST"
+                            action="{% url 'toggle-like' post.id %}">       
+                                    
+                            {% csrf_token %}        
+                                    
+                            <input
+                            type="hidden"
+                            name="next"
+                                value="{{ request.path }}">     
+                                    
+                            <button
+                            class="btn border-0 bg-transparent p-0 fs-4">       
+                                    
+                            {% if post.is_liked %}      
+                                    
+                            <i class="fa-solid fa-heart like-fill"></i>      
+                                    
+                            {% else %}      
+                                    
+                            <i class="fa-regular fa-heart like-blank"></i>      
+                                    
+                            {% endif %}     
+                                    
+                        </button>       
+                            <p class="mt-2">
+                                
+                                {{ post.likes.count }} Likes
+                                
+                            </p>
+                        
+                        </form>
+                        <div class="post-user-caption">
+                            <p>
+
+                            <strong>
+                                {{ post.user.username }}
+                            </strong>
+                                
+                                
+                                {{ post.caption }}
+                                
+                            </p>
+                        </div>
+
+                        <small class="text-secondary">
+
+                            {{ post.created_at|timesince }} ago
+
+                        </small>
+
+                        <hr>
+
+                        <form
+                            method="POST"
+                            action="{% url 'add-comment' post.id %}">
+                                            
+                            {% csrf_token %}
+                                            
+                            <input
+                                type="hidden"
+                                name="next"
+                                value="{{ request.path }}"> 
+                                            
+                            <div class="input-group comment-form">  
+                            
+                                {{ comment_form.comment }}
+                            
+                                <button
+                                    class="btn btn-peach comment-btn">
+                            
+                                    Post
+                            
+                                </button>
+                            
+                            </div>
+                        
+                        </form>
+
+                        <hr>
+
+                        <div
+                            class="comment-section">
+
+                            {% for comment in post.comments.all %}
+
+                            <div class="mb-3">
+                            
+                                <strong>
+                                
+                                    {{ comment.user.username }}
+                                
+                                </strong>
+                            
+                                <br>
+                            
+                                {{ comment.comment }}
+                            
+                                <br>
+                            
+                                <small class="text-secondary">
+                                
+                                    {{ comment.created_at|timesince }} ago
+                                
+                                </small>
+                            
+                            </div>
+                        
+                            {% empty %}
+                        
+                            <p class="text-secondary">
+                            
+                                No comments yet.
+                            
+                            </p>
+                        
+                            {% endfor %}
+                        
+                        </div>
+
+                        
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

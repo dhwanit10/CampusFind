@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}
+
+Create Post
+
+{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+
+<div class="col-lg-7">
+
+<div class="custom-card p-4">
+
+<h3 class="text-peach mb-4">
+
+Create Post
+
+</h3>
+
+<form
+
+method="POST"
+
+enctype="multipart/form-data">
+
+{% csrf_token %}
+
+<div class="mb-3">
+
+<label>
+
+Image
+
+</label>
+
+{{ form.image }}
+
+</div>
+
+<div class="mb-3">
+
+<label>
+
+Caption
+
+</label>
+
+{{ form.caption }}
+
+</div>
+
+<button
+
+class="btn btn-peach">
+
+Post
+
+</button>
+
+</form>
+
+</div>
+
+</div>
+
+</div>
+
+{% endblock %}
