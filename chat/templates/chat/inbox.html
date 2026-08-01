@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="custom-card p-4">
+    <h3>Messages</h3>
+
+    <hr />
+
+    {% for conversation in conversations %}
+      <a href="{% url 'conversation' conversation.id %}">Conversation {{ conversation.id }}</a>
+
+      <br />
+    {% empty %}
+      No conversations yet.
+    {% endfor %}
+  </div>
+{% endblock %}

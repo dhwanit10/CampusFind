@@ -8,6 +8,7 @@ from django.conf import settings
 from django.http import HttpResponseForbidden
 from django.contrib import messages
 from django.db.models import Count
+from django.db.models import Exists, OuterRef
 
 # Create your views here.
 #posts/views.py
@@ -59,12 +60,22 @@ def profile_view(request):
         follower=request.user
     ).count()
 
+    followers = Follow.objects.filter(
+        following=request.user
+    ).select_related("follower", "follower__profile")
+
+    following = Follow.objects.filter(
+        follower=request.user
+    ).select_related("following", "following__profile")
+
     context ={
         "profile_user":request.user,
         "profile" : request.user.profile,
         "posts": posts,
         "followers_count": followers_count,
         "following_count": following_count,
+         "followers": followers,
+        "following": following,
         "comment_form": CommentForm(),
     } 
     
@@ -93,6 +104,14 @@ def user_profile(request, username):
         follower=profile_user
     ).count()
 
+    followers = Follow.objects.filter(
+        following=profile_user
+    ).select_related("follower", "follower__profile")
+
+    following = Follow.objects.filter(
+        follower=profile_user
+    ).select_related("following", "following__profile")
+
     context={
 
         "profile_user":profile_user,
@@ -105,6 +124,9 @@ def user_profile(request, username):
         "followers_count": followers_count,
 
         "following_count": following_count,
+
+        "followers": followers,
+        "following": following,
 
     }
 
@@ -341,3 +363,4 @@ def toggle_follow(request, username):
         return redirect(next_url)
 
     return redirect("userprofile", username=username)
+

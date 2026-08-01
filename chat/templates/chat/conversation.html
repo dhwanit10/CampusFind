@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="chat-container">
+    <div class="chat-header">
+      {% for user in conversation.participants.all %}
+        {% if user != request.user %}
+          <strong>{{ user.username }}</strong>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <div class="chat-body">
+      {% for message in messages %}
+        <div class="{% if message.sender == request.user %}
+            my-message
+          {% else %}
+            other-message
+          {% endif %}">
+          <p>{{ message.content }}</p>
+
+          <small>{{ message.created_at|time:'H:i' }}</small>
+        </div>
+      {% empty %}
+        <p>No messages yet.</p>
+      {% endfor %}
+    </div>
+
+    <form method="POST" action="{% url 'send-message' conversation.id %}" class="chat-form">
+      {% csrf_token %}
+
+      {{ form.content }}
+
+      <button class="btn btn-peach">Send</button>
+    </form>
+  </div>
+{% endblock %}

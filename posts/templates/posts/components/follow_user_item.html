@@ -1,0 +1,18 @@
+<div class="follow-user">
+
+    <a href="{% url 'userprofile' user.username %}"
+       class="follow-user-info">
+
+        <img
+            src="{{ user.profile.profile_image.url }}"
+            class="follow-profile">
+
+        <span>
+
+            {{ user.username }}
+
+        </span>
+
+    </a>
+
+</div>

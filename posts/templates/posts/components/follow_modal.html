@@ -1,0 +1,54 @@
+<div class="modal fade"
+     id="{{ modal_id }}"
+     tabindex="-1">
+
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content bg-dark text-white">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+
+                    {{ title }}
+
+                </h5>
+
+                <button
+                    class="btn-close btn-close-white"
+                    data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+            <div class="modal-body p-0">
+
+                {% for relation in users %}
+
+                    {% if title == "Followers" %}
+                        {% with user=relation.follower %}
+                            {% include "posts/components/follow_user_item.html" %}
+                        {% endwith %}
+                    {% else %}
+                        {% with user=relation.following %}
+                            {% include "posts/components/follow_user_item.html" %}
+                        {% endwith %}
+                    {% endif %}
+
+                {% empty %}
+
+                    <p class="text-center p-4 text-secondary">
+
+                        No users found.
+
+                    </p>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
