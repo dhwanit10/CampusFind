@@ -29,7 +29,7 @@ def conversation(request, conversation_id):
 
     context = {
         "conversation":conversation,
-        "messages" : messages,
+        "mess" : messages,
         "form": form,
     }
 

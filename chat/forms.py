@@ -11,6 +11,7 @@ class MessageForm(forms.ModelForm):
                 attrs={
                     "placeholder": "Type a message...",
                     "class": "chat-input",
+                    "id": "chatInput",
                     "autocomplete": "off",
                 }
             )

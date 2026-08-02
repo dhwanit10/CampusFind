@@ -10,28 +10,98 @@
       {% endfor %}
     </div>
 
-    <div class="chat-body">
-      {% for message in messages %}
-        <div class="{% if message.sender == request.user %}
-            my-message
+    <div class="chat-body" id="chatBody">
+      {% for message in mess %}
+        <div class="chat-message">
+          {% if message.sender == request.user %}
+            <span class="message-author me-author">ME</span>
           {% else %}
-            other-message
-          {% endif %}">
-          <p>{{ message.content }}</p>
+            <span class="message-author">{{ message.sender.username }}</span>
+          {% endif %}
 
-          <small>{{ message.created_at|time:'H:i' }}</small>
+          <div class="message-text">{{ message.content }}</div>
+
+          <div class="message-time">{{ message.created_at|time:'g:i A' }}</div>
         </div>
       {% empty %}
         <p>No messages yet.</p>
       {% endfor %}
     </div>
 
-    <form method="POST" action="{% url 'send-message' conversation.id %}" class="chat-form">
+    <form class="chat-form" id="chatForm">
       {% csrf_token %}
 
       {{ form.content }}
-
-      <button class="btn btn-peach">Send</button>
+      {% comment %} <input type="text" id="chatInput" /> {% endcomment %}
+      <button class="chat-send-btn"><i class="bi bi-send-fill"></i></button>
     </form>
   </div>
+
+  <script>
+    const chatBody = document.getElementById('chatBody')
+    
+    chatBody.scrollTop = chatBody.scrollHeight
+    
+    const conversationId = '{{ conversation.id }}'
+    
+    const socket = new WebSocket('ws://' + window.location.host + '/ws/chat/' + conversationId + '/')
+    
+    socket.onopen = function () {
+      console.log('Connected')
+    }
+    
+    socket.onmessage = function (e) {
+      const data = JSON.parse(e.data)
+    
+      const chatBody = document.getElementById('chatBody')
+    
+      chatBody.innerHTML += `
+    
+            <div class="chat-message">
+    
+                <span class="message-author">
+    
+                    ${data.sender}
+    
+                </span>
+    
+                <div class="message-text">
+    
+                    ${data.message}
+    
+                </div>
+    
+                <div class="message-time">
+    
+                    ${data.time}
+    
+                </div>
+    
+            </div>
+    
+        `
+    
+      chatBody.scrollTop = chatBody.scrollHeight
+    }
+    
+    const form = document.getElementById('chatForm')
+    
+    const input = document.getElementById('chatInput')
+    
+    form.addEventListener('submit', function (e) {
+      e.preventDefault()
+    
+      socket.send(
+        JSON.stringify({
+          message: input.value
+        })
+      )
+    
+      input.value = ''
+    })
+    
+    socket.onclose = function () {
+      console.log('Disconnected')
+    }
+  </script>
 {% endblock %}
