@@ -1,0 +1,204 @@
+<div class="chat-container">
+
+    <!-- Header -->
+
+    <div class="chat-header">
+
+        <div class="d-flex align-items-center">
+
+            {% for user in conversation.participants.all %}
+
+                {% if user != request.user %}
+
+                    <img
+                        src="{{ user.profile.profile_image.url }}"
+                        class="conversation-avatar me-3">
+
+                    <div>
+
+                        <h5 class="mb-0">
+
+                            {{ user.username }}
+
+                        </h5>
+
+                        <small class="text-secondary">
+
+                            CampusFind User
+
+                        </small>
+
+                    </div>
+
+                {% endif %}
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+    <!-- Messages -->
+
+    <div
+        class="chat-body"
+        id="chatBody">
+
+        {% for message in mess %}
+
+            <div class="chat-message">
+
+                {% if message.sender == request.user %}
+
+                    <span class="message-author me-author">
+
+                        ME
+
+                    </span>
+
+                {% else %}
+
+                    <span class="message-author">
+
+                        {{ message.sender.username }}
+
+                    </span>
+
+                {% endif %}
+
+                <div class="message-text">
+
+                    {{ message.content }}
+
+                </div>
+
+                <div class="message-time">
+
+                    {{ message.created_at|time:"g:i A" }}
+
+                </div>
+
+            </div>
+
+        {% empty %}
+
+            <div class="text-center text-secondary mt-5">
+
+                Start your conversation 👋
+
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+    <!-- Input -->
+
+    <form
+        id="chatForm"
+        class="chat-form">
+
+        {{ form.content }}
+
+        <button
+            class="chat-send-btn"
+            type="submit">
+
+            <i class="bi bi-send-fill"></i>
+
+        </button>
+
+    </form>
+
+</div>
+
+<script>
+    const conversationId = "{{ conversation.id }}";
+    
+    const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
+    
+    const socket = new WebSocket(
+        wsScheme +
+        "://" +
+        window.location.host +
+        "/ws/chat/" +
+        conversationId +
+        "/"
+        );
+        
+        socket.onopen = function () {
+            
+            console.log("Connected");
+            
+        };
+        
+        socket.onclose = function () {
+            
+            console.log("Disconnected");
+            
+        };
+        
+        socket.onmessage = function (e) {
+            
+            const data = JSON.parse(e.data);
+            
+            const chatBody = document.getElementById("chatBody");
+            
+            const mine = data.sender === "{{ request.user.username }}";
+            
+    chatBody.innerHTML += `
+    
+        <div class="chat-message">
+            
+        <span class="message-author ${mine ? "me-author" : ""}">
+            
+        ${mine ? "ME" : data.sender}
+        
+        </span>
+        
+        <div class="message-text">
+
+        ${data.message}
+        
+        </div>
+        
+            <div class="message-time">
+
+            ${data.time}
+            
+            </div>
+            
+            </div>
+            
+            `;
+            
+            chatBody.scrollTop = chatBody.scrollHeight;
+            
+        };
+        
+        const form = document.getElementById("chatForm");
+        
+        const input = document.getElementById("chatInput");
+
+        form.addEventListener("submit", function(e){
+            
+            e.preventDefault();
+            
+            if(input.value.trim() === "") return;
+            
+            socket.send(JSON.stringify({
+                
+                message: input.value
+                
+            }));
+            
+            input.value = "";
+            
+        });
+        
+        const chatBody = document.getElementById("chatBody");
+
+        chatBody.scrollTop = chatBody.scrollHeight;
+        
+    
+</script>

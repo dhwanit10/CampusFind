@@ -1,0 +1,58 @@
+<div class="sidebar-header">
+  <h4>
+    <i class="bi bi-chat-dots-fill text-peach"></i>
+
+    Messages
+  </h4>
+</div>
+
+<div class="sidebar-search">
+  <input type="text" placeholder="Search" class="form-control" />
+</div>
+
+<div class="conversation-list">
+  {% for conv in conversations %}
+    {% for user in conv.participants.all %}
+      {% if user != request.user %}
+        <a href="{% url 'conversation' conv.id %}" class="conversation-item
+                {% if conversation and conversation.id == conv.id %}
+                    active
+                {% endif %}">
+          <img src="{{ user.profile.profile_image.url }}" class="conversation-avatar" />
+
+          <div class="conversation-info">
+            <div class="conversation-name">{{ user.username }}</div>
+
+            <div class="conversation-preview">
+              {% with last=conv.messages.last %}
+                {% if last %}
+                  <div class="conversation-preview">{{ last.content|truncatechars:28 }}</div>
+
+                  <small class="conversation-time">
+                    {% if last.created_at.date == today %}
+                      {{ last.created_at|time:'g:i A' }}
+                    {% else %}
+                      {{ last.created_at|date:'M d' }}
+                    {% endif %}
+                  </small>
+                {% else %}
+                  <div class="conversation-preview">Start chatting...</div>
+                {% endif %}
+
+                {% for status in conv.statuses.all %}
+                  {% if status.user == request.user and status.unread_count > 0 %}
+                    <span class="unread-badge">{{ status.unread_count }}</span>
+                  {% endif %}
+                {% endfor %}
+
+                
+              {% endwith %}
+            </div>
+          </div>
+        </a>
+      {% endif %}
+    {% endfor %}
+  {% empty %}
+    <p class="text-secondary p-3">No conversations yet.</p>
+  {% endfor %}
+</div>

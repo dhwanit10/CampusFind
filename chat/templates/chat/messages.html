@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  Messages
+{% endblock %}
+
+{% block content %}
+  <div class="chat-page">
+    <div class="chat-sidebar">
+      {% include 'chat/components/sidebar.html' %}
+    </div>
+
+    <div class="chat-main">
+      {% if conversation %}
+        {% include 'chat/components/conversation.html' %}
+      {% else %}
+        {% include 'chat/components/empty_chat.html' %}
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}
