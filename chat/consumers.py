@@ -43,20 +43,70 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         data = json.loads(text_data)
+
         message = data["message"]
-
-        saved_message = await self.save_message(message)
+    
+        saved = await self.save_message(message)
+    
+        saved_message = saved["message"]
+    
+        receiver_id = saved["receiver_id"]
+    
+        receiver_unread = saved["receiver_unread"]
+    
+        # Send message to the conversation
         await self.channel_layer.group_send(
+        
             self.room_group_name,
+    
             {
+            
                 "type": "chat_message",
-                "message":saved_message.content,
-                "sender":saved_message.sender.username,
-                "time":saved_message.created_at.strftime("%I:%M %p"),
+    
+                "message":
+                    saved_message.content,
+    
+                "sender":
+                    saved_message.sender.username,
+    
+                "time":
+                    saved_message.created_at.strftime(
+                        "%I:%M %p"
+                    ),
+    
             }
+    
         )
-
-        await self.send_sidebar_update(saved_message)
+    
+        # Send sidebar update to receiver
+        await self.channel_layer.group_send(
+        
+            f"user_{receiver_id}",
+    
+            {
+            
+                "type": "sidebar_update",
+    
+                "conversation_id":
+                    int(self.conversation_id),
+    
+                "username":
+                    self.scope["user"].username,
+    
+                "last_message":
+                    saved_message.content,
+    
+                "time":
+                    saved_message.created_at.strftime(
+                        "%I:%M %p"
+                    ),
+    
+                "unread":
+                    receiver_unread,
+    
+            }
+    
+        )
 
     async def chat_message(self, event):
         
@@ -73,6 +123,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 }
             )
         )
+
 
     async def send_sidebar_update(self, saved_message):
 
@@ -101,8 +152,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 "time": event["time"],
                 "unread": event["unread"],
             })
-
-    )
+        )
+        
     # @database_sync_to_async
     # def save_message(self, message):
     #     conversation = Conversation.objects.get(
@@ -119,28 +170,62 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def save_message(self, message):
+
         conversation = Conversation.objects.get(
             id=self.conversation_id
         )
+
         conversation.updated_at = timezone.now()
+
         conversation.save(
             update_fields=["updated_at"]
         )
 
         new_message = Message.objects.create(
+
             conversation=conversation,
+
             sender=self.scope["user"],
+
             content=message,
+
         )
 
         ConversationStatus.objects.filter(
+
             conversation=conversation
+
         ).exclude(
+
             user=self.scope["user"]
+
         ).update(
+
             unread_count=F("unread_count") + 1
+
         )
-        return new_message
+
+        receiver = conversation.participants.exclude(
+            id=self.scope["user"].id
+        ).first()
+
+        receiver_status = ConversationStatus.objects.get(
+
+            conversation=conversation,
+
+            user=receiver,
+
+        )
+
+        return {
+
+            "message": new_message,
+
+            "receiver_id": receiver.id,
+
+            "receiver_unread": receiver_status.unread_count,
+
+        }
 
 
     @database_sync_to_async
@@ -172,3 +257,77 @@ class ChatConsumer(AsyncWebsocketConsumer):
             })
 
         return data
+
+
+# for side bar real time update
+
+class SidebarConsumer(AsyncWebsocketConsumer):
+
+    async def connect(self):
+
+        if self.scope["user"].is_anonymous:
+
+            await self.close()
+
+            return
+
+        self.user = self.scope["user"]
+
+        self.user_group = (
+            f"user_{self.user.id}"
+        )
+
+        await self.channel_layer.group_add(
+
+            self.user_group,
+
+            self.channel_name,
+
+        )
+
+        print(
+            f"Sidebar connected: {self.user.username}"
+        )
+
+        await self.accept()
+
+    async def disconnect(self, close_code):
+
+        await self.channel_layer.group_discard(
+
+            self.user_group,
+
+            self.channel_name,
+
+        )
+
+        print(
+            f"Sidebar disconnected: {self.user.username}"
+        )
+
+    async def sidebar_update(self, event):
+
+        await self.send(
+
+            text_data=json.dumps({
+
+                "type": "sidebar_update",
+
+                "conversation_id":
+                    event["conversation_id"],
+
+                "username":
+                    event["username"],
+
+                "last_message":
+                    event["last_message"],
+
+                "time":
+                    event["time"],
+
+                "unread":
+                    event["unread"],
+
+            })
+
+        )

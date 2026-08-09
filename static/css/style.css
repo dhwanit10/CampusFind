@@ -1153,3 +1153,130 @@ input[type=file] {
     font-weight:600;
 
 }
+
+.conversation-item {
+
+    position: relative;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 14px;
+
+    color: white;
+
+    text-decoration: none;
+
+    transition: background 0.2s ease;
+
+}
+
+
+.conversation-item:hover {
+
+    background: rgba(255, 255, 255, 0.05);
+
+}
+
+
+.conversation-item.active {
+
+    background: rgba(255, 255, 255, 0.08);
+
+}
+
+
+.conversation-info {
+
+    flex: 1;
+
+    min-width: 0;
+
+}
+
+
+.conversation-name {
+
+    font-weight: 600;
+
+}
+
+
+.conversation-preview {
+
+    color: #999;
+
+    font-size: 13px;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    max-width: 220px;
+
+}
+
+
+.conversation-meta {
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: flex-end;
+
+    justify-content: center;
+
+    gap: 5px;
+
+}
+
+
+.conversation-time {
+
+    color: #777;
+
+    font-size: 11px;
+
+    white-space: nowrap;
+
+}
+
+
+.unread-badge {
+
+    min-width: 21px;
+
+    height: 21px;
+
+    padding: 0 6px;
+
+    border-radius: 50%;
+
+    background: #ff4d6d;
+
+    color: white;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+}
+
+
+.unread-badge.d-none {
+
+    display: none;
+
+}

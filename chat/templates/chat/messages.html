@@ -18,4 +18,97 @@
       {% endif %}
     </div>
   </div>
+
+  <script>
+    const wsScheme = window.location.protocol === 'https:' ? 'wss' : 'ws'
+    
+    const sidebarSocket = new WebSocket(wsScheme + '://' + window.location.host + '/ws/sidebar/')
+    
+    sidebarSocket.onopen = function () {
+      console.log('Sidebar WebSocket connected')
+    }
+    
+    sidebarSocket.onclose = function () {
+      console.log('Sidebar WebSocket disconnected')
+    }
+    
+    sidebarSocket.onerror = function (error) {
+      console.error('Sidebar WebSocket error:', error)
+    }
+    
+    sidebarSocket.onmessage = function (event) {
+      const data = JSON.parse(event.data)
+    
+      console.log('Sidebar update:', data)
+    
+      if (data.type !== 'sidebar_update') {
+        return
+      }
+    
+      const conversationId = data.conversation_id
+    
+      const conversation = document.getElementById(`conversation-${conversationId}`)
+    
+      /*
+       * Conversation doesn't exist
+       *
+       * This can happen if someone creates
+       * a brand new conversation.
+       */
+    
+      if (!conversation) {
+        console.log('Conversation not found in sidebar')
+    
+        return
+      }
+    
+      /*
+       * Update last message
+       */
+    
+      const preview = document.getElementById(`preview-${conversationId}`)
+    
+      if (preview) {
+        preview.textContent = data.last_message.length > 28 ? data.last_message.substring(0, 28) + '...' : data.last_message
+      }
+    
+      /*
+       * Update time
+       */
+    
+      const time = document.getElementById(`time-${conversationId}`)
+    
+      if (time) {
+        time.textContent = data.time
+      }
+    
+      /*
+       * Update unread badge
+       */
+    
+      const badge = document.getElementById(`badge-${conversationId}`)
+    
+      if (badge) {
+        if (data.unread > 0) {
+          badge.textContent = data.unread
+    
+          badge.classList.remove('d-none')
+        } else {
+          badge.textContent = ''
+    
+          badge.classList.add('d-none')
+        }
+      }
+    
+      /*
+       * Move conversation to top
+       */
+    
+      const list = document.getElementById('conversationList')
+    
+      if (list) {
+        list.prepend(conversation)
+      }
+    }
+  </script>
 {% endblock %}
