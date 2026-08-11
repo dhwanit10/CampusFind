@@ -133,35 +133,47 @@
                             {% for comment in post.comments.all %}
 
                             <div class="mb-3">
-                            
+
                                 <strong>
-                                
+
                                     {{ comment.user.username }}
-                                
+
                                 </strong>
-                            
+
+                                {% if request.user == comment.user or request.user == post.user %}
+                                    <button
+                                        type="button"
+                                        class="btn btn-link text-danger p-0 ms-2 shadow-none border-0 align-baseline"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#deleteComment{{ comment.id }}"
+                                        aria-label="Delete comment"
+                                        title="Delete comment">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                {% endif %}
+
                                 <br>
-                            
+
                                 {{ comment.comment }}
-                            
+
                                 <br>
-                            
+
                                 <small class="text-secondary">
-                                
+
                                     {{ comment.created_at|timesince }} ago
-                                
+
                                 </small>
-                            
+
                             </div>
-                        
+
                             {% empty %}
-                        
+
                             <p class="text-secondary">
-                            
+
                                 No comments yet.
-                            
+
                             </p>
-                        
+
                             {% endfor %}
                         
                         </div>

@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% load post_filters %}
+
+<div class="notification-dropdown">
+  <div class="notification-header d-flex align-items-center justify-content-between p-3 border-bottom border-secondary">
+    <strong>Notifications</strong>
+    {% if unread > 0 %}
+      <form
+        method="POST"
+        action="{% url 'notifications-read' %}"
+        class="m-0">
+        {% csrf_token %}
+        <button class="btn btn-sm btn-link text-peach p-0">Mark all read</button>
+      </form>
+    {% endif %}
+  </div>
+
+  <div class="notification-list" id="notificationList">
+    {% for n in items %}
+      <div
+        class="notification-item {% if not n.is_read %}unread{% endif %}"
+        data-id="{{ n.id }}">
+        {% if n.actor_profile_image %}
+          <img src="{{ n.actor_profile_image }}" class="notification-avatar" />
+        {% else %}
+          <i class="bi {{ n.icon }} notification-icon"></i>
+        {% endif %}
+        <div class="flex-grow-1">
+          <div>
+            <strong>{{ n.actor_username }}</strong>
+            {{ n.verb }}
+          </div>
+          <small class="text-secondary">{{ n.created_at|instagram_date }}</small>
+        </div>
+      </div>
+    {% empty %}
+      <div class="p-4 text-center text-secondary">
+        No notifications yet.
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<style>
+  .notification-dropdown {
+    min-width: 320px;
+    max-height: 480px;
+    overflow-y: auto;
+    background: #111;
+    color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  }
+  .notification-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  .notification-item.unread {
+    background: rgba(255, 200, 150, 0.05);
+  }
+  .notification-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  .notification-icon {
+    font-size: 1.4rem;
+    width: 36px;
+    text-align: center;
+  }
+</style>

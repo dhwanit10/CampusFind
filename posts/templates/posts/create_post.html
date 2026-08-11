@@ -42,13 +42,50 @@ Image
 
 <div class="mb-3">
 
-<label>
+<div class="d-flex align-items-center justify-content-between">
+
+<label class="mb-0">
 
 Caption
 
 </label>
 
+<button
+    type="button"
+    id="suggestBtn"
+    class="btn btn-sm btn-outline-light">
+
+    ✨ Suggest
+
+</button>
+
+</div>
+
 {{ form.caption }}
+
+<div
+    id="suggestionArea"
+    class="mt-3 d-none">
+
+<div class="mb-2">
+
+<small class="text-secondary">Click a caption to use it:</small>
+
+<div id="captionChips" class="d-flex flex-wrap gap-2 mt-1"></div>
+
+</div>
+
+<div class="mb-2">
+
+<small class="text-secondary">Click a hashtag or emoji to append:</small>
+
+<div id="hashtagChips" class="d-flex flex-wrap gap-2 mt-1"></div>
+
+<div id="emojiChips" class="d-flex flex-wrap gap-2 mt-1"></div>
+
+</div>
+
+</div>
 
 </div>
 
@@ -67,5 +104,137 @@ Post
 </div>
 
 </div>
+
+<script>
+
+const suggestBtn = document.getElementById("suggestBtn")
+
+const captionInput = document.getElementById("{{ form.caption.id_for_label }}")
+
+const area = document.getElementById("suggestionArea")
+
+const captionChips = document.getElementById("captionChips")
+
+const hashtagChips = document.getElementById("hashtagChips")
+
+const emojiChips = document.getElementById("emojiChips")
+
+function getCookie(name) {
+
+    let v = null
+
+    if (document.cookie) {
+
+        document.cookie.split(";").forEach(c => {
+
+            const [k, val] = c.trim().split("=")
+
+            if (k === name) v = decodeURIComponent(val)
+
+        })
+
+    }
+
+    return v
+
+}
+
+function makeChip(text, onClick) {
+
+    const btn = document.createElement("button")
+
+    btn.type = "button"
+
+    btn.className = "btn btn-sm btn-outline-light"
+
+    btn.textContent = text
+
+    btn.addEventListener("click", onClick)
+
+    return btn
+
+}
+
+suggestBtn.addEventListener("click", async function () {
+
+    suggestBtn.disabled = true
+
+    suggestBtn.textContent = "✨ Thinking..."
+
+    try {
+
+        const fd = new FormData()
+
+        fd.append("caption", captionInput.value || "")
+
+        const resp = await fetch(
+            "{% url 'suggest-caption' %}",
+            {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": getCookie("csrftoken"),
+                },
+                body: fd,
+            }
+        )
+
+        if (!resp.ok) throw new Error("bad status")
+
+        const data = await resp.json()
+
+        captionChips.innerHTML = ""
+
+        hashtagChips.innerHTML = ""
+
+        emojiChips.innerHTML = ""
+
+        ;(data.captions || []).forEach(text => {
+
+            captionChips.appendChild(
+                makeChip(text, () => {
+                    captionInput.value = text
+                })
+            )
+
+        })
+
+        ;(data.hashtags || []).forEach(tag => {
+
+            hashtagChips.appendChild(
+                makeChip("#" + tag, () => {
+                    const cur = captionInput.value.trim()
+                    captionInput.value = cur ? cur + " #" + tag : "#" + tag
+                })
+            )
+
+        })
+
+        ;(data.emojis || []).forEach(em => {
+
+            emojiChips.appendChild(
+                makeChip(em, () => {
+                    captionInput.value = (captionInput.value || "") + em
+                })
+            )
+
+        })
+
+        area.classList.remove("d-none")
+
+    } catch (e) {
+
+        alert("AI suggestions unavailable right now.")
+
+    } finally {
+
+        suggestBtn.disabled = false
+
+        suggestBtn.textContent = "✨ Suggest"
+
+    }
+
+})
+
+</script>
 
 {% endblock %}

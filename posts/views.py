@@ -5,10 +5,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 from .forms import UserForm, UserProfileForm, PostForm, CommentForm
 from django.conf import settings
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, JsonResponse
 from django.contrib import messages
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.db.models import Exists, OuterRef
+from ai.services import suggest_captions
 
 # Create your views here.
 #posts/views.py
@@ -293,6 +294,14 @@ def toggle_like(request, post_id):
             post=post
         )
 
+        from notifications.services import create_notification
+        create_notification(
+            recipient=post.user,
+            actor=request.user,
+            type_="like",
+            post=post,
+        )
+
     next_url = request.POST.get("next")
 
     if next_url:
@@ -316,6 +325,15 @@ def add_comment(request, post_id):
             comment.post = post
             comment.save()
 
+            from notifications.services import create_notification
+            create_notification(
+                recipient=post.user,
+                actor=request.user,
+                type_="comment",
+                post=post,
+                comment=comment,
+            )
+
             messages.success(
                 request, "Comment added."
             )
@@ -326,6 +344,25 @@ def add_comment(request, post_id):
             return redirect(next_url)
 
         return redirect("home")
+
+@login_required
+def delete_comment(request, post_id, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id, post_id=post_id)
+
+    # Allow delete if the user is the comment author OR the post owner.
+    if request.user != comment.user and request.user != comment.post.user:
+        return HttpResponseForbidden("You are not allowed to delete this comment.")
+
+    if request.method == "POST":
+        next_url = request.POST.get("next")
+        comment.delete()
+        messages.success(request, "Comment deleted.")
+        if next_url:
+            return redirect(next_url)
+        return redirect("home")
+
+    return redirect("home")
+
 
 def toggle_follow(request, username):
     user_to_follow = get_object_or_404(
@@ -357,10 +394,63 @@ def toggle_follow(request, username):
             f"you are now following {user_to_follow.username}"
         )
 
+        from notifications.services import create_notification
+        create_notification(
+            recipient=user_to_follow,
+            actor=request.user,
+            type_="follow",
+        )
+
     next_url = request.POST.get("next")
 
     if next_url:
         return redirect(next_url)
 
     return redirect("userprofile", username=username)
+
+
+@login_required
+def suggest_caption(request):
+    """AJAX endpoint hit by the ✨ Suggest button on the create-post page."""
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=405)
+
+    caption = request.POST.get("caption", "")
+    result = suggest_captions(caption)
+    return JsonResponse(result)
+
+
+@login_required
+def search_view(request):
+    q = request.GET.get("q", "").strip()
+    users, posts = [], []
+    if q:
+        users = (
+            User.objects
+            .filter(
+                Q(username__icontains=q)
+                | Q(first_name__icontains=q)
+                | Q(last_name__icontains=q)
+            )
+            .select_related("profile")[:20]
+        )
+
+        posts = (
+            Post.objects
+            .filter(
+                Q(caption__icontains=q)
+                | Q(user__username__icontains=q)
+            )
+            .select_related("user", "user__profile")
+            .order_by("-created_at")[:30]
+        )
+
+        for post in posts:
+            post.is_liked = post.likes.filter(user=request.user).exists()
+
+    return render(
+        request,
+        "posts/search.html",
+        {"q": q, "users": users, "posts": posts},
+    )
 

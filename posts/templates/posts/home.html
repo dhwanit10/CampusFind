@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load post_filters %}
+{% load post_filters story_tags %}
 {% block title %}
 
 Home
@@ -11,6 +11,8 @@ Home
 <div class="row">
 
     <div class="col-lg-8 col-xl-6 mx-auto">
+
+        {% render_stories_strip %}
 
         {% for post in posts %}
 

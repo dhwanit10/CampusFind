@@ -217,6 +217,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         )
 
+        from notifications.services import create_notification
+        create_notification(
+            recipient=receiver,
+            actor=self.scope["user"],
+            type_="message",
+            post=None,
+        )
+
         return {
 
             "message": new_message,

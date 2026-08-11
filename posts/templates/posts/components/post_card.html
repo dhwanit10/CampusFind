@@ -68,4 +68,10 @@
   {% include 'posts/components/delete_modal.html' %}
 
   {% include 'posts/components/post_modal.html' %}
+
+  {% for comment in post.comments.all %}
+    {% if request.user == comment.user or request.user == post.user %}
+      {% include 'posts/components/delete_comment_modal.html' with post=post comment=comment %}
+    {% endif %}
+  {% endfor %}
 </div>

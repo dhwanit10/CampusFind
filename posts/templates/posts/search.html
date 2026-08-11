@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% load post_filters %}
+{% block title %}
+
+Search{% if q %} · {{ q }}{% endif %}
+
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+
+  <div class="col-lg-8 mx-auto">
+
+    {% comment %} <form
+      method="GET"
+      action="{% url 'search' %}"
+      class="mb-4">
+      <div class="input-group">
+        <input
+          type="text"
+          name="q"
+          value="{{ q }}"
+          class="form-control"
+          placeholder="Search users or posts..." />
+        <button class="btn btn-peach">
+          <i class="bi bi-search"></i>
+          Search
+        </button>
+      </div>
+    </form> {% endcomment %}
+
+    {% if q %}
+
+      <div class="row">
+
+        <div class="col-md-5">
+
+          <h5 class="text-peach mb-3">People</h5>
+
+          {% for user in users %}
+
+            <div class="custom-card p-3 mb-2 d-flex align-items-center gap-3">
+
+              <img
+                src="{{ user.profile.profile_image.url }}"
+                class="mini-profile" />
+
+              <div>
+                <a
+                  href="{% url 'userprofile' user.username %}"
+                  class="text-decoration-none">
+                  <strong>{{ user.username }}</strong>
+                </a>
+                {% if user.first_name or user.last_name %}
+                  <div class="text-secondary small">
+                    {{ user.first_name }} {{ user.last_name }}
+                  </div>
+                {% endif %}
+              </div>
+
+            </div>
+
+          {% empty %}
+
+            <p class="text-secondary">No users found.</p>
+
+          {% endfor %}
+
+        </div>
+
+        <div class="col-md-7">
+
+          <h5 class="text-peach mb-3">Posts</h5>
+
+          {% for post in posts %}
+
+            {% include "posts/components/post_card.html" %}
+
+          {% empty %}
+
+            <p class="text-secondary">No posts found.</p>
+
+          {% endfor %}
+
+        </div>
+
+      </div>
+
+    {% else %}
+
+      <div class="text-center text-secondary mt-5">
+
+        <i class="bi bi-search display-1"></i>
+
+        <p>Type a name or caption to search.</p>
+
+      </div>
+
+    {% endif %}
+
+  </div>
+
+</div>
+
+{% endblock %}

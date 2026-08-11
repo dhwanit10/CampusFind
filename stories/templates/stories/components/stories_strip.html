@@ -1,0 +1,138 @@
+<div class="stories-strip-wrapper">
+  <div class="stories-strip">
+
+    <!-- Your own "+" tile to upload a new story -->
+    <form
+      method="POST"
+      action="{% url 'create-story' %}"
+      enctype="multipart/form-data"
+      class="story-tile story-tile-self">
+      {% csrf_token %}
+      <label class="story-upload">
+        <img
+          src="{{ request.user.profile.profile_image.url }}"
+          class="story-avatar story-avatar-self"
+          alt="Your profile" />
+        <span class="story-plus">+</span>
+        <input
+          type="file"
+          name="image"
+          accept="image/*"
+          class="d-none story-input"
+          onchange="this.form.submit()" />
+      </label>
+      <small class="story-username">Your story</small>
+    </form>
+
+    {% for story in stories %}
+      <button
+        type="button"
+        class="story-tile"
+        data-bs-toggle="modal"
+        data-bs-target="#storyModal{{ story.id }}">
+        <div class="story-ring">
+          <img
+            src="{{ story.user.profile.profile_image.url }}"
+            class="story-avatar"
+            alt="{{ story.user.username }}" />
+        </div>
+        <small class="story-username">
+          {{ story.user.username }}
+        </small>
+      </button>
+
+      <div
+        class="modal fade"
+        id="storyModal{{ story.id }}"
+        tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content bg-dark text-white">
+            <div class="modal-header border-secondary">
+              <strong>{{ story.user.username }}</strong>
+              <button
+                type="button"
+                class="btn-close btn-close-white"
+                data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+              <img
+                src="{{ story.image.url }}"
+                class="w-100"
+                alt="Story image" />
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+
+  </div>
+</div>
+
+<style>
+  .stories-strip-wrapper {
+    overflow-x: auto;
+    padding: 0.5rem 0;
+    margin-bottom: 1rem;
+  }
+  .stories-strip {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+  .story-tile {
+    background: transparent;
+    border: 0;
+    padding: 0;
+    width: 72px;
+    text-align: center;
+    color: inherit;
+    cursor: pointer;
+  }
+  .story-tile-self .story-upload {
+    display: block;
+    cursor: pointer;
+    position: relative;
+  }
+  .story-ring {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    padding: 2px;
+    background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+    margin: 0 auto;
+  }
+  .story-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #000;
+    display: block;
+    margin: 0 auto;
+  }
+  .story-avatar-self {
+    border: 2px solid #444;
+  }
+  .story-plus {
+    position: absolute;
+    bottom: -2px;
+    right: 0;
+    background: #fff;
+    color: #000;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    line-height: 20px;
+    font-weight: 700;
+    border: 2px solid #000;
+  }
+  .story-username {
+    display: block;
+    margin-top: 0.4rem;
+    font-size: 0.75rem;
+    max-width: 72px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+</style>

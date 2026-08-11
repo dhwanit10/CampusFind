@@ -4,11 +4,26 @@ from django.db.models import Q, F
 # Create your models here.
 
 
+class Campus(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    code = models.CharField(max_length=20, unique=True)
+
+    def __str__(self):
+        return self.name
+
 class UserProfile(models.Model):
     user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
         related_name="profile"
+    )
+
+    campus = models.ForeignKey(
+        Campus,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="users"
     )
 
     bio = models.TextField(blank=True)

@@ -14,6 +14,7 @@ from channels.routing import ProtocolTypeRouter
 from channels.routing import URLRouter
 from channels.auth import AuthMiddlewareStack
 import chat.routing
+import notifications.routing
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'campusfind.settings')
 
@@ -25,6 +26,7 @@ application = ProtocolTypeRouter(
         "websocket": AuthMiddlewareStack(
             URLRouter(
                 chat.routing.websocket_urlpatterns
+                + notifications.routing.websocket_urlpatterns
             )
         ),
     }

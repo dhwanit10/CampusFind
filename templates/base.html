@@ -33,7 +33,41 @@
         <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav"><span class="navbar-toggler-icon"></span></button>
 
         <div class="collapse navbar-collapse" id="nav">
+          {% if user.is_authenticated %}
+            <form
+              method="GET"
+              action="{% url 'search' %}"
+              class="d-flex me-auto ms-3 nav-search">
+              <input
+                type="text"
+                name="q"
+                value="{{ request.GET.q|default:'' }}"
+                class="form-control form-control-sm"
+                placeholder="Search users or posts..." />
+              <button class="btn btn-sm btn-outline-light ms-2" type="submit">
+                <i class="bi bi-search"></i>
+              </button>
+            </form>
+          {% endif %}
+
           <ul class="navbar-nav ms-auto align-items-center">
+
+            {% if user.is_authenticated %}
+              <li class="nav-item position-relative">
+                <a
+                  class="nav-link"
+                  href="{% url 'notifications' %}"
+                  id="notificationBell">
+                  <i class="bi bi-bell"></i>
+                  <span
+                    id="notificationBadge"
+                    class="badge bg-danger {% if not unread_count %}d-none{% endif %}">
+                    {{ unread_count|default:0 }}
+                  </span>
+                </a>
+              </li>
+            {% endif %}
+
             <li class="nav-item">
               <a class="nav-link" href="{% url 'create-post' %}"><i class="bi bi-plus-circle"></i> Create</a>
             </li>
@@ -74,20 +108,56 @@
       setTimeout(function () {
         document.querySelectorAll('.custom-alert').forEach(function (alert) {
           alert.style.opacity = '0'
-      
+
           setTimeout(function () {
             alert.remove()
           }, 500)
         })
       }, 3000)
-      
+
       document.querySelectorAll('.comment-input').forEach(function (textarea) {
         textarea.addEventListener('input', function () {
           this.style.height = 'auto'
-      
+
           this.style.height = this.scrollHeight + 'px'
         })
       })
     </script>
+
+    {% if user.is_authenticated %}
+      <script>
+        // Live notification badge — listens on /ws/notifications/.
+        (function () {
+          const badge = document.getElementById('notificationBadge')
+          if (!badge) return
+
+          const wsScheme = window.location.protocol === 'https:' ? 'wss' : 'ws'
+          const socket = new WebSocket(wsScheme + '://' + window.location.host + '/ws/notifications/')
+
+          function bump(n) {
+            const current = parseInt(badge.textContent || '0', 10) || 0
+            const next = current + (n || 1)
+            badge.textContent = next
+            badge.classList.remove('d-none')
+          }
+
+          socket.onmessage = function (event) {
+            try {
+              const data = JSON.parse(event.data)
+              if (data && (data.id || data.type)) {
+                bump(1)
+              }
+            } catch (e) {}
+          }
+
+          socket.onclose = function () {
+            // Try to reconnect after a delay so a transient WS drop doesn't lose updates forever.
+            setTimeout(function () {
+              window.location.reload()
+            }, 5000)
+          }
+        })()
+      </script>
+    {% endif %}
   </body>
 </html>
