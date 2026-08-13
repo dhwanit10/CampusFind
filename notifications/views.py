@@ -15,7 +15,7 @@ def notifications_dropdown(request):
     unread = Notification.objects.filter(recipient=request.user, is_read=False).count()
     return render(
         request,
-        "notifications/components/dropdown.html",
+        "notifications/notification.html",
         {"items": items, "unread": unread},
     )
 
