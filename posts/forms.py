@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import UserProfile, Post, Comment
+from .models import UserProfile, Post, Comment, Campus
 
 
 class UserForm(forms.ModelForm):
@@ -16,7 +16,7 @@ class UserProfileForm(forms.ModelForm):
     )
     class Meta:
         model = UserProfile
-        fields = ["bio", "profile_image"]
+        fields = ["bio", "profile_image", "campus"]
 
         widgets = {
             "bio": forms.Textarea(
@@ -25,21 +25,30 @@ class UserProfileForm(forms.ModelForm):
                     "class": "form-control",
                     "placeholder": "Write something about yourself..."
                 }
+            ),
+            "campus": forms.Select(
+                attrs={
+                    "class": "form-select",
+                    "id": "campus-select"
+                }
             )
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Make sure campus field shows all campuses
+        self.fields['campus'].queryset = Campus.objects.all().order_by('name')
+        self.fields['campus'].empty_label = "Select your campus..."
+        self.fields['campus'].required = False
+
 class PostForm(forms.ModelForm):
-
     class Meta:
-
         model = Post
-
         fields = [
             "image",
             "caption"
         ]
-
         widgets = {
-
             "caption": forms.Textarea(
                 attrs={
                     "rows":3,
@@ -47,7 +56,6 @@ class PostForm(forms.ModelForm):
                     "placeholder":"Write a caption..."
                 }
             )
-
         }
 
 class CommentForm(forms.ModelForm):

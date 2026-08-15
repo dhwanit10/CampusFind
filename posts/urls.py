@@ -3,9 +3,11 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 from . import views
-# posts/urls.py
+
 urlpatterns = [
     path("", views.home, name="home"),
+    path("campus-feed/", views.campus_feed, name="campus-feed"),
+    path("campus-suggestions/", views.campus_suggestions, name="campus-suggestions"),
     path("profile/", views.profile_view, name='profile'),
     path('user/<str:username>/', views.user_profile, name='userprofile'),
     path("profile/edit/", views.edit_profile, name="edit-profile"),
@@ -19,3 +21,6 @@ urlpatterns = [
     path("post/suggest-caption/", views.suggest_caption, name="suggest-caption"),
     path("search/", views.search_view, name="search"),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

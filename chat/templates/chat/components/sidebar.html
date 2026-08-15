@@ -58,21 +58,12 @@
             </small>
 
             <!-- Unread -->
-
-            <span class="unread-badge
-                            {% if not conv.statuses.all %}
-                                d-none
-                            {% endif %}" id="badge-{{ conv.id }}">
-              {% for status in conv.statuses.all %}
-                {% if status.user_id == request.user.id %}
-                  {% if status.unread_count > 0 %}
-                    {{ status.unread_count }}
-                  {% else %}
-                    <span class="d-none">0</span>
-                  {% endif %}
-                {% endif %}
-              {% endfor %}
+            <span class="unread-badge {% if not conv.unread_count %}d-none{% endif %}" id="badge-{{ conv.id }}">
+              {% if conv.unread_count %}
+                {{ conv.unread_count }}
+              {% endif %}
             </span>
+            
           </div>
         </a>
       {% endif %}

@@ -1,77 +1,73 @@
 {% load post_filters %}
 <div class="post-card">
-  <!-- Header -->
-  <div class="post-header">
-    <div class="d-flex align-items-center">
-      <img src="{{ post.user.profile.profile_image.url }}" class="mini-profile" alt="Profile" />
+    <!-- Header -->
+    <div class="post-header">
+        <div class="d-flex align-items-center">
+            <img src="{{ post.user.profile.profile_image.url }}" class="mini-profile" alt="Profile" />
 
-      <div>
-        <a href="{% url 'userprofile' post.user.username %}" class="username">{{ post.user.username }}</a>
-      </div>
+            <div>
+                <a href="{% url 'userprofile' post.user.username %}" class="username">{{ post.user.username }}</a>
+                <!-- Display Campus -->
+                {% if post.user.profile.campus %}
+                    <span class="campus-tag small">
+                        <i class="bi bi-geo-alt-fill"></i> {{ post.user.profile.campus.name }}
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if request.user == post.user %}
+            <div class="dropdown">
+                <button class="btn btn-link text-white p-0 shadow-none border-0" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-three-dots"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark">
+                    <li><a class="dropdown-item" href="{% url 'edit-post' post.id %}">Edit</a></li>
+                    <li><button class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#deletePost{{ post.id }}">Delete</button></li>
+                </ul>
+            </div>
+        {% endif %}
     </div>
 
-    {% if request.user == post.user %}
-      <div class="dropdown">
-        <button class="btn btn-link text-white p-0 shadow-none border-0" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-three-dots"></i></button>
+    <!-- Image -->
+    <img src="{{ post.image.url }}" class="post-image clickable-post" data-bs-toggle="modal" data-bs-target="#postModal{{ post.id }}" />
 
-        <ul class="dropdown-menu dropdown-menu-dark">
-          <li>
-            <a class="dropdown-item" href="{% url 'edit-post' post.id %}">Edit</a>
-          </li>
+    <div class="post-body">
+        <div class="like-comment-body">
+            <form method="POST" action="{% url 'toggle-like' post.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.path }}" />
+                <button class="btn border-0 bg-transparent p-0 mr-2 like-btn">
+                    {% if post.is_liked %}
+                        <i class="fa-solid fa-heart like-fill"></i>
+                    {% else %}
+                        <i class="fa-regular fa-heart like-blank"></i>
+                    {% endif %}
+                    {{ post.likes.count }}
+                </button>
+            </form>
 
-          <li>
-            <button class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#deletePost{{ post.id }}">Delete</button>
-          </li>
-        </ul>
-      </div>
-    {% endif %}
-  </div>
+            <button class="btn border-0 bg-transparent p-0 action-btn ms-2 like-btn" data-bs-toggle="modal" data-bs-target="#postModal{{ post.id }}">
+                <i class="fa-regular fa-comment like-blank"></i>
+                {{ post.comment_count }}
+            </button>
+        </div>
 
-  <!-- Image -->
+        <!-- Caption -->
+        <p class="clickable-post" data-bs-toggle="modal" data-bs-target="#postModal{{ post.id }}">
+            <strong>{{ post.user.username }}</strong>
+            {{ post.caption }}
+        </p>
 
-  <img src="{{ post.image.url }}" class="post-image clickable-post" data-bs-toggle="modal" data-bs-target="#postModal{{ post.id }}" />
-
-  <div class="post-body">
-    <div class="like-comment-body">
-        <form method="POST" action="{% url 'toggle-like' post.id %}">
-            {% csrf_token %}
-            
-            <input type="hidden" name="next" value="{{ request.path }}" />
-            
-            <button class="btn border-0 bg-transparent p-0 mr-2 like-btn">
-            {% if post.is_liked %}
-              <i class="fa-solid fa-heart like-fill"></i>
-            {% else %}
-              <i class="fa-regular fa-heart like-blank"></i>
-            {% endif %}
-
-            {{ post.likes.count }}
-        </button>
-        </form>
-
-        <button class="btn border-0 bg-transparent p-0 action-btn ms-2 like-btn" data-bs-toggle="modal" data-bs-target="#postModal{{ post.id }}">
-            <i class="fa-regular fa-comment like-blank"></i>
-            {{ post.comment_count }}
-        </button>
+        <small>{{ post.created_at|instagram_date }}</small>
     </div>
 
-    <!-- Caption -->
-    <p class="clickable-post" data-bs-toggle="modal" data-bs-target="#postModal{{ post.id }}">
-      <strong>{{ post.user.username }}</strong>
+    {% include 'posts/components/delete_modal.html' %}
+    {% include 'posts/components/post_modal.html' %}
 
-      {{ post.caption }}
-    </p>
-
-    <small>{{ post.created_at|instagram_date }}</small>
-  </div>
-
-  {% include 'posts/components/delete_modal.html' %}
-
-  {% include 'posts/components/post_modal.html' %}
-
-  {% for comment in post.comments.all %}
-    {% if request.user == comment.user or request.user == post.user %}
-      {% include 'posts/components/delete_comment_modal.html' with post=post comment=comment %}
-    {% endif %}
-  {% endfor %}
+    {% for comment in post.comments.all %}
+        {% if request.user == comment.user or request.user == post.user %}
+            {% include 'posts/components/delete_comment_modal.html' with post=post comment=comment %}
+        {% endif %}
+    {% endfor %}
 </div>

@@ -1,240 +1,155 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block title %}
-
-Create Post
-
+  Create Post
 {% endblock %}
 
 {% block content %}
+  <div class="row justify-content-center">
+    <div class="col-lg-7">
+      <div class="custom-card p-4">
+        <h3 class="text-peach mb-4">Create Post</h3>
 
-<div class="row justify-content-center">
+        <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
 
-<div class="col-lg-7">
+          <div class="mb-3">
+            <label>Image</label>
 
-<div class="custom-card p-4">
+            {{ form.image }}
+          </div>
 
-<h3 class="text-peach mb-4">
+          <div class="mb-3">
+            <div class="d-flex align-items-center justify-content-between">
+              <label class="mb-0">Caption</label>
 
-Create Post
+              <button type="button" id="suggestBtn" class="btn btn-sm btn-outline-light">✨ Suggest</button>
+            </div>
 
-</h3>
+            {{ form.caption }}
 
-<form
+            <div id="suggestionArea" class="mt-3 d-none">
+              <div class="mb-2">
+                <small class="text-secondary">Click a caption to use it:</small>
 
-method="POST"
+                <div id="captionChips" class="d-flex flex-wrap gap-2 mt-1"></div>
+              </div>
 
-enctype="multipart/form-data">
+              <div class="mb-2">
+                <small class="text-secondary">Click a hashtag or emoji to append:</small>
 
-{% csrf_token %}
+                <div id="hashtagChips" class="d-flex flex-wrap gap-2 mt-1"></div>
 
-<div class="mb-3">
+                <div id="emojiChips" class="d-flex flex-wrap gap-2 mt-1"></div>
+              </div>
+            </div>
+          </div>
 
-<label>
+          <button class="btn btn-peach">Post</button>
+        </form>
+      </div>
+    </div>
+  </div>
 
-Image
-
-</label>
-
-{{ form.image }}
-
-</div>
-
-<div class="mb-3">
-
-<div class="d-flex align-items-center justify-content-between">
-
-<label class="mb-0">
-
-Caption
-
-</label>
-
-<button
-    type="button"
-    id="suggestBtn"
-    class="btn btn-sm btn-outline-light">
-
-    ✨ Suggest
-
-</button>
-
-</div>
-
-{{ form.caption }}
-
-<div
-    id="suggestionArea"
-    class="mt-3 d-none">
-
-<div class="mb-2">
-
-<small class="text-secondary">Click a caption to use it:</small>
-
-<div id="captionChips" class="d-flex flex-wrap gap-2 mt-1"></div>
-
-</div>
-
-<div class="mb-2">
-
-<small class="text-secondary">Click a hashtag or emoji to append:</small>
-
-<div id="hashtagChips" class="d-flex flex-wrap gap-2 mt-1"></div>
-
-<div id="emojiChips" class="d-flex flex-wrap gap-2 mt-1"></div>
-
-</div>
-
-</div>
-
-</div>
-
-<button
-
-class="btn btn-peach">
-
-Post
-
-</button>
-
-</form>
-
-</div>
-
-</div>
-
-</div>
-
-<script>
-
-const suggestBtn = document.getElementById("suggestBtn")
-
-const captionInput = document.getElementById("{{ form.caption.id_for_label }}")
-
-const area = document.getElementById("suggestionArea")
-
-const captionChips = document.getElementById("captionChips")
-
-const hashtagChips = document.getElementById("hashtagChips")
-
-const emojiChips = document.getElementById("emojiChips")
-
-function getCookie(name) {
-
-    let v = null
-
-    if (document.cookie) {
-
-        document.cookie.split(";").forEach(c => {
-
-            const [k, val] = c.trim().split("=")
-
-            if (k === name) v = decodeURIComponent(val)
-
+  <script>
+    const suggestBtn = document.getElementById('suggestBtn')
+    
+    const captionInput = document.getElementById('{{ form.caption.id_for_label }}')
+    
+    const area = document.getElementById('suggestionArea')
+    
+    const captionChips = document.getElementById('captionChips')
+    
+    const hashtagChips = document.getElementById('hashtagChips')
+    
+    const emojiChips = document.getElementById('emojiChips')
+    
+    function getCookie(name) {
+      let v = null
+    
+      if (document.cookie) {
+        document.cookie.split(';').forEach((c) => {
+          const [k, val] = c.trim().split('=')
+    
+          if (k === name) v = decodeURIComponent(val)
         })
-
+      }
+    
+      return v
     }
-
-    return v
-
-}
-
-function makeChip(text, onClick) {
-
-    const btn = document.createElement("button")
-
-    btn.type = "button"
-
-    btn.className = "btn btn-sm btn-outline-light"
-
-    btn.textContent = text
-
-    btn.addEventListener("click", onClick)
-
-    return btn
-
-}
-
-suggestBtn.addEventListener("click", async function () {
-
-    suggestBtn.disabled = true
-
-    suggestBtn.textContent = "✨ Thinking..."
-
-    try {
-
+    
+    function makeChip(text, onClick) {
+      const btn = document.createElement('button')
+    
+      btn.type = 'button'
+    
+      btn.className = 'btn btn-sm btn-outline-light'
+    
+      btn.textContent = text
+    
+      btn.addEventListener('click', onClick)
+    
+      return btn
+    }
+    
+    suggestBtn.addEventListener('click', async function () {
+      suggestBtn.disabled = true
+    
+      suggestBtn.textContent = '✨ Thinking...'
+    
+      try {
         const fd = new FormData()
-
-        fd.append("caption", captionInput.value || "")
-
-        const resp = await fetch(
-            "{% url 'suggest-caption' %}",
-            {
-                method: "POST",
-                headers: {
-                    "X-CSRFToken": getCookie("csrftoken"),
-                },
-                body: fd,
-            }
-        )
-
-        if (!resp.ok) throw new Error("bad status")
-
+    
+        fd.append('caption', captionInput.value || '')
+    
+        const resp = await fetch("{% url 'suggest-caption' %}", {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+          },
+          body: fd
+        })
+    
+        if (!resp.ok) throw new Error('bad status')
+    
         const data = await resp.json()
-
-        captionChips.innerHTML = ""
-
-        hashtagChips.innerHTML = ""
-
-        emojiChips.innerHTML = ""
-
-        ;(data.captions || []).forEach(text => {
-
-            captionChips.appendChild(
-                makeChip(text, () => {
-                    captionInput.value = text
-                })
-            )
-
+    
+        captionChips.innerHTML = ''
+    
+        hashtagChips.innerHTML = ''
+    
+        emojiChips.innerHTML = ''
+        ;(data.captions || []).forEach((text) => {
+          captionChips.appendChild(
+            makeChip(text, () => {
+              captionInput.value = text
+            })
+          )
         })
-
-        ;(data.hashtags || []).forEach(tag => {
-
-            hashtagChips.appendChild(
-                makeChip("#" + tag, () => {
-                    const cur = captionInput.value.trim()
-                    captionInput.value = cur ? cur + " #" + tag : "#" + tag
-                })
-            )
-
+        ;(data.hashtags || []).forEach((tag) => {
+          hashtagChips.appendChild(
+            makeChip('#' + tag, () => {
+              const cur = captionInput.value.trim()
+              captionInput.value = cur ? cur + ' #' + tag : '#' + tag
+            })
+          )
         })
-
-        ;(data.emojis || []).forEach(em => {
-
-            emojiChips.appendChild(
-                makeChip(em, () => {
-                    captionInput.value = (captionInput.value || "") + em
-                })
-            )
-
+        ;(data.emojis || []).forEach((em) => {
+          emojiChips.appendChild(
+            makeChip(em, () => {
+              captionInput.value = (captionInput.value || '') + em
+            })
+          )
         })
-
-        area.classList.remove("d-none")
-
-    } catch (e) {
-
-        alert("AI suggestions unavailable right now.")
-
-    } finally {
-
+    
+        area.classList.remove('d-none')
+      } catch (e) {
+        alert('AI suggestions unavailable right now.')
+      } finally {
         suggestBtn.disabled = false
-
-        suggestBtn.textContent = "✨ Suggest"
-
-    }
-
-})
-
-</script>
-
+    
+        suggestBtn.textContent = '✨ Suggest'
+      }
+    })
+  </script>
 {% endblock %}

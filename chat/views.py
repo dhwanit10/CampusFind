@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from .forms import MessageForm
 from .models import Conversation, ConversationStatus
+from django.db.models import Prefetch
 import random
 from django.utils import timezone
 
@@ -105,8 +106,32 @@ def messages_view(request, conversation_id=None):
 
     conversations = (
         request.user.conversations
-        .prefetch_related("participants", "statuses", "messages",)
+        .prefetch_related(
+            "participants",
+            "messages",
+        )
+        .prefetch_related(
+            Prefetch(
+                "statuses",
+                queryset=ConversationStatus.objects.filter(
+                    user=request.user
+                ),
+                to_attr="current_user_status",
+            )
+        )
     )
+
+    for conv in conversations:
+
+        if conv.current_user_status:
+        
+            conv.unread_count = (
+                conv.current_user_status[0].unread_count
+            )
+    
+        else:
+        
+            conv.unread_count = 0
 
     selected_conversation = None
 

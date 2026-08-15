@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load post_filters %}
+
+{% block title %}Campus Feed - OffCampus{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="campus-feed-header mb-4">
+            <h2 class="text-peach">
+                <i class="bi bi-people"></i> Your Campus Feed
+            </h2>
+            <p class="text-secondary">Posts from students at <strong>{{ campus_name }}</strong></p>
+        </div>
+
+        {% if not posts %}
+            <div class="text-center py-5">
+                <i class="bi bi-people" style="font-size: 4rem; color: #6c63ff;"></i>
+                <h4 class="mt-3">No posts from your campus yet</h4>
+                <p class="text-secondary">When students from your campus post, they'll appear here.</p>
+                <a href="{% url 'home' %}" class="btn btn-peach">Go to Home Feed</a>
+            </div>
+        {% else %}
+            {% for post in posts %}
+                {% include 'posts/components/post_card.html' %}
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

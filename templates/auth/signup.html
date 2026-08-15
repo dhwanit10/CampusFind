@@ -1,58 +1,61 @@
 {% load static %}
 <!DOCTYPE html>
 <html>
-
 <head>
-
-    <title>Sign Up</title>
-
+    <title>Sign Up - OffCampus</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap"
-        rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
-
 </head>
-
 <body class="auth-body">
-
-<div class="auth-card">
-
-    <h1 class="text-center mb-4 text-peach">
-
-        CampusFind
-
-    </h1>
-
-    <form method="POST">
-
-        {% csrf_token %}
-
-        {{ form.as_p }}
-
-        <button class="btn btn-peach w-100 mt-3">
-
-            Create Account
-
-        </button>
-
-    </form>
-
-    <p class="text-center mt-4">
-
-        Already have an account?
-
-        <a href="{% url 'login' %}" class="text-peach">
-
-            Login
-
-        </a>
-
-    </p>
-
-</div>
-
+    <div class="auth-card">
+        <h1 class="text-center mb-4 text-peach">OffCampus</h1>
+        
+        <form method="POST">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label class="form-label">Username</label>
+                {{ form.username }}
+                {% if form.username.errors %}
+                    <div class="text-danger small">{{ form.username.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Password</label>
+                {{ form.password1 }}
+                {% if form.password1.errors %}
+                    <div class="text-danger small">{{ form.password1.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Confirm Password</label>
+                {{ form.password2 }}
+                {% if form.password2.errors %}
+                    <div class="text-danger small">{{ form.password2.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Your Campus *</label>
+                <select name="campus" class="form-select" required>
+                    <option value="">Select your campus...</option>
+                    {% for campus in campuses %}
+                        <option value="{{ campus.id }}">{{ campus.name }}</option>
+                    {% endfor %}
+                </select>
+                <div class="form-text">This helps you connect with students from your campus</div>
+            </div>
+            
+            <button class="btn btn-peach w-100 mt-3">Create Account</button>
+        </form>
+        
+        <p class="text-center mt-4">
+            Already have an account?
+            <a href="{% url 'login' %}" class="text-peach">Login</a>
+        </p>
+    </div>
 </body>
-
 </html>

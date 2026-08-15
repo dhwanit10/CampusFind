@@ -1,183 +1,87 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block title %}
-Edit Profile
+  Edit Profile
 {% endblock %}
 
 {% block content %}
-
-<div class="row justify-content-center">
-
-<div class="col-lg-7">
-
-<div class="custom-card p-4">
-
-<h2 class="text-peach mb-4">
-
-Edit Profile
-
-</h2>
-
-<form method="POST" enctype="multipart/form-data">
-
-{% csrf_token %}
-
-<div class="mb-3">
-
- <div class="text-center mb-4">
-
-    <!-- Current Profile Image -->
-    <img
-        id="profilePreview"
-        src="{{ profile_form.instance.profile_image.url }}"
-        class="edit-profile-image"
-        alt="Profile Image">
-
-</div>
-
-<!-- Hidden File Input -->
-<div class="d-none">
-
-    {{ profile_form.profile_image }}
-
-</div>
-
-<!-- Hidden field to tell Django to remove image -->
-<input
-    type="hidden"
-    name="remove_image"
-    id="removeImage"
-    value="0">
-
-<div class="text-center mb-4">
-
-    <button
-        type="button"
-        class="btn btn-peach me-2"
-        id="changePhotoBtn">
-
-        Change Photo
-
-    </button>
-
-    <button
-        type="button"
-        class="btn btn-outline-danger"
-        id="removePhotoBtn">
-
-        Remove Photo
-
-    </button>
-
-</div>
-
-<label class="form-label">
-
-First Name
-
-</label>
-
-{{ user_form.first_name }}
-
-</div>
-
-<div class="mb-3">
-
-<label class="form-label">
-
-Last Name
-
-</label>
-
-{{ user_form.last_name }}
-
-</div>
-
-<div class="mb-3">
-
-<label class="form-label">
-
-Bio
-
-</label>
-
-{{ profile_form.bio }}
-
-</div>
-
-
-<button class="btn btn-peach">
-
-Save Changes
-
-</button>
-
-<a href="{% url 'profile' %}"
-
-class="btn btn-outline-light ms-2">
-
-Cancel
-
-</a>
-
-</form>
-
-</div>
-
-</div>
-
-</div>
-
-<script>
-
-const fileInput = document.getElementById(
-    "id_profile_image"
-);
-
-const preview = document.getElementById(
-    "profilePreview"
-);
-
-const removeInput = document.getElementById(
-    "removeImage"
-);
-
-const defaultImage = "{{ default_profile_image }}";
-
-document.getElementById(
-    "changePhotoBtn"
-).onclick = function(){
-
-    fileInput.click();
-
-};
-
-fileInput.onchange = function(e){
-
-    const file = e.target.files[0];
-
-    if(file){
-
-        preview.src = URL.createObjectURL(file);
-
-        removeInput.value = "0";
-
+  <div class="row justify-content-center">
+    <div class="col-lg-7">
+      <div class="custom-card p-4">
+        <h2 class="text-peach mb-4">Edit Profile</h2>
+
+        <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <div class="text-center mb-4">
+              <img id="profilePreview" src="{{ profile_form.instance.profile_image.url }}" class="edit-profile-image" alt="Profile Image" />
+            </div>
+
+            <div class="d-none">{{ profile_form.profile_image }}</div>
+
+            <input type="hidden" name="remove_image" id="removeImage" value="0" />
+
+            <div class="text-center mb-4">
+              <button type="button" class="btn btn-peach me-2" id="changePhotoBtn">Change Photo</button>
+              <button type="button" class="btn btn-outline-danger" id="removePhotoBtn">Remove Photo</button>
+            </div>
+
+            <label class="form-label">First Name</label>
+            {{ user_form.first_name }}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Last Name</label>
+            {{ user_form.last_name }}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Campus</label>
+            {{ profile_form.campus }}
+            <div class="form-text">Select your campus to connect with other students</div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Bio</label>
+            {{ profile_form.bio }}
+          </div>
+
+          <button class="btn btn-peach">Save Changes</button>
+          <a href="{% url 'profile' %}" class="btn btn-outline-light ms-2">Cancel</a>
+        </form>
+      </div>
+    </div>
+  </div>
+  <script>
+    const fileInput = document.getElementById('id_profile_image')
+    
+    const preview = document.getElementById('profilePreview')
+    
+    const removeInput = document.getElementById('removeImage')
+    
+    const defaultImage = '{{ default_profile_image }}'
+    
+    document.getElementById('changePhotoBtn').onclick = function () {
+      fileInput.click()
     }
-
-};
-
-document.getElementById(
-    "removePhotoBtn"
-).onclick = function(){
-
-    preview.src = defaultImage;
-
-    fileInput.value = "";
-
-    removeInput.value = "1";
-
-};
-
-</script>
-
+    
+    fileInput.onchange = function (e) {
+      const file = e.target.files[0]
+    
+      if (file) {
+        preview.src = URL.createObjectURL(file)
+    
+        removeInput.value = '0'
+      }
+    }
+    
+    document.getElementById('removePhotoBtn').onclick = function () {
+      preview.src = defaultImage
+    
+      fileInput.value = ''
+    
+      removeInput.value = '1'
+    }
+  </script>
 {% endblock %}
