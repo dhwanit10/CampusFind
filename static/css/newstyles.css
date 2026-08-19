@@ -1,0 +1,31 @@
+:root{
+    /* Base Colors - Inspired by Netflix's "Off Campus" series vibe */
+--primary: #6C5CE7;        /* Deep Purple - Campus Night */
+--secondary: #00CEC9;      /* Teal - Campus Energy */
+--accent: #FD79A8;         /* Soft Pink - Campus Crush */
+--gradient-start: #6C5CE7;
+--gradient-end: #00CEC9;
+
+/* Weather/Time Adaptation */
+--bg-morning: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+--bg-afternoon: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+--bg-evening: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+--bg-night: linear-gradient(135deg, #0c0c1d 0%, #2d1b69 100%);
+--bg-rainy: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+--bg-sunny: linear-gradient(135deg, #fdcbf1 0%, #e6dee9 100%);
+
+/* Font Strategy - Edgy but readable */
+--font-primary: 'Poppins', sans-serif;     /* Headings - Bold & Clean */
+--font-body: 'Inter', sans-serif;          /* Body - Highly Readable */
+--font-accent: 'Space Grotesk', sans-serif;/* Special Elements */
+
+/* Sizes with perfect rhythm */
+--text-xs: 0.75rem;    /* 12px */
+--text-sm: 0.875rem;   /* 14px */
+--text-base: 1rem;     /* 16px */
+--text-lg: 1.125rem;   /* 18px */
+--text-xl: 1.25rem;    /* 20px */
+--text-2xl: 1.5rem;    /* 24px */
+--text-3xl: 1.875rem;  /* 30px */
+--text-4xl: 2.25rem;   /* 36px */
+}
