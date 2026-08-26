@@ -45,8 +45,8 @@
                 <!-- Avatar / Icon -->
 
                 <div class="notification-left">
-                  {% if n.actor_profile_image %}
-                    <img src="{{ n.actor_profile_image }}" class="notification-page-avatar" alt="{{ n.actor_username }}" />
+                  {% if n.actor.profile.profile_image %}
+                    <img src="{{ n.actor.profile.profile_image.url }}" class="notification-page-avatar" alt="{{ n.actor_username }}" />
                   {% else %}
                     <div class="notification-page-icon">
                       <i class="bi {{ n.icon }}"></i>
@@ -58,7 +58,7 @@
 
                 <div class="notification-page-content">
                   <div class="notification-message">
-                    <strong>{{ n.actor_username }}</strong>
+                    <strong>{{ n.actor.username }}</strong>
 
                     <span>{{ n.verb }}</span>
                   </div>

@@ -1,39 +1,21 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% load post_filters story_tags %}
 {% block title %}
-
-Home
-
+  Home
 {% endblock %}
 
 {% block content %}
-
-<div class="row">
-
+  <div class="row">
     <div class="col-lg-8 col-xl-6 mx-auto">
+      {% render_stories_strip %}
 
-        {% render_stories_strip %}
-
-        {% for post in posts %}
-
-            {% include "posts/components/post_card.html" %}
-
-        {% empty %}
-
-            <div class="text-center mt-5">
-
-                <h3>
-
-                    No Posts Yet
-
-                </h3>
-
-            </div>
-
-        {% endfor %}
-
+      {% for post in posts %}
+        {% include 'posts/components/post_card.html' %}
+      {% empty %}
+        <div class="text-center mt-5">
+          <h3>No Posts Yet</h3>
+        </div>
+      {% endfor %}
     </div>
-
-</div>
-
+  </div>
 {% endblock %}
