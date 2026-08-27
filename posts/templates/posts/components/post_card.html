@@ -8,16 +8,17 @@
             <div>
                 <a href="{% url 'userprofile' post.user.username %}" class="username">{{ post.user.username }}</a>
                 <!-- Display Campus -->
-                {% if post.user.profile.campus %}
-                    <span class="campus-tag small">
-                        <i class="bi bi-geo-alt-fill"></i> {{ post.user.profile.campus.code }}
-                    </span>
-                {% endif %}
+                
             </div>
         </div>
 
         {% if request.user == post.user %}
             <div class="dropdown">
+                {% if post.user.profile.campus %}
+                    <span class="campus-tag small">
+                        <i class="bi bi-geo-alt-fill"></i> {{ post.user.profile.campus.code }}
+                    </span>
+                {% endif %}
                 <button class="btn btn-link text-white p-0 shadow-none border-0" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="bi bi-three-dots"></i>
                 </button>

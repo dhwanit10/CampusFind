@@ -8,6 +8,21 @@ class UserForm(forms.ModelForm):
         model = User
         fields = ["first_name", "last_name"]
 
+        widgets = {
+            "first_name": forms.TextInput(
+                attrs = {
+                    "placeholder": "Sweet Name",
+                    "class": "edit-input-fields"
+                }
+            ),
+            "last_name": forms.TextInput(
+                            attrs = {
+                                "placeholder": "Family Name",
+                                "class": "edit-input-fields"
+                            }
+                        )
+        }
+
 
 class UserProfileForm(forms.ModelForm):
     remove_profile_image = forms.BooleanField(
