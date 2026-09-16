@@ -38,19 +38,20 @@
             <form method="POST" action="{% url 'toggle-like' post.id %}">
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{{ request.path }}" />
-                <button class="btn border-0 bg-transparent p-0 mr-2 like-btn">
+                <button class="btn border-0 bg-transparent p-0 mr-2 like-btn" data-post-id="{{ post.id }}">
                     {% if post.is_liked %}
                         <i class="fa-solid fa-heart like-fill"></i>
                     {% else %}
                         <i class="fa-regular fa-heart like-blank"></i>
                     {% endif %}
-                    {{ post.likes.count }}
+                    <span class="like-count">{{ post.likes.count }}</span>
                 </button>
+
             </form>
 
             <button class="btn border-0 bg-transparent p-0 action-btn ms-2 like-btn" data-bs-toggle="modal" data-bs-target="#postModal{{ post.id }}">
                 <i class="fa-regular fa-comment like-blank"></i>
-                {{ post.comment_count }}
+                <span class="comment-count">{{ post.comment_count }}</span>
             </button>
         </div>
 

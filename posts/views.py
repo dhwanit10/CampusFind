@@ -342,11 +342,36 @@ def toggle_like(request, post_id):
 
     if like.exists():
         like.delete()
-
+        # Broadcast dislike event
+        from asgiref.sync import async_to_sync
+        from channels.layers import get_channel_layer
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f"post_{post.id}",
+            {
+                "type": "post_update",
+                "action": "dislike",
+                "user_id": request.user.id,
+                "like_count": post.likes.count(),
+            }
+        )
     else:
         Like.objects.create(
             user=request.user,
             post=post
+        )
+        # Broadcast like event
+        from asgiref.sync import async_to_sync
+        from channels.layers import get_channel_layer
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f"post_{post.id}",
+            {
+                "type": "post_update",
+                "action": "like",
+                "user_id": request.user.id,
+                "like_count": post.likes.count(),
+            }
         )
 
         from notifications.services import create_notification
@@ -380,6 +405,23 @@ def add_comment(request, post_id):
             comment.post = post
             comment.save()
 
+            # Broadcast new comment event
+            from asgiref.sync import async_to_sync
+            from channels.layers import get_channel_layer
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                f"post_{post.id}",
+                {
+                    "type": "post_update",
+                    "action": "comment",
+                    "user_id": request.user.id,
+                    "username": request.user.username,
+                    "comment_text": comment.comment,
+                    "comment_id": comment.id,
+                    "comment_count": post.comments.count(),
+                }
+            )
+
             from notifications.services import create_notification
             create_notification(
                 recipient=post.user,
@@ -411,6 +453,21 @@ def delete_comment(request, post_id, comment_id):
     if request.method == "POST":
         next_url = request.POST.get("next")
         comment.delete()
+        
+        # Broadcast comment deletion event
+        from asgiref.sync import async_to_sync
+        from channels.layers import get_channel_layer
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f"post_{post.id}",
+            {
+                "type": "post_update",
+                "action": "delete_comment",
+                "comment_id": comment_id,
+                "comment_count": post.comments.count(),
+            }
+        )
+
         messages.success(request, "Comment deleted.")
         if next_url:
             return redirect(next_url)
